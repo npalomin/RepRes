@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Residential Density</title>
+
+<script src="Res_density_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="Res_density_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="Res_density_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="Res_density_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="Res_density_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="Res_density_files/navigation-1.1/tabsets.js"></script>
+<link href="Res_density_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="Res_density_files/highlightjs-9.12.0/highlight.js"></script>
+<link href="Res_density_files/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="Res_density_files/pagedtable-1.1/js/pagedtable.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Residential Density</h1>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#get-data"><span class="toc-section-number">1</span> Get data</a></li>
+<li><a href="#examine-data-distributions-with-histograms"><span class="toc-section-number">2</span> Examine data distributions with histograms</a></li>
+<li><a href="#create-choropleth-maps"><span class="toc-section-number">3</span> Create choropleth maps</a></li>
+</ul>
+</div>
+
+<div id="get-data" class="section level1">
+<h1><span class="header-section-number">1</span> Get data</h1>
+<p>Get data from <a href="https://borders.ukdataservice.ac.uk/easy_download_data.html?data=England_lsoa_2011" class="uri">https://borders.ukdataservice.ac.uk/easy_download_data.html?data=England_lsoa_2011</a></p>
+<p>English Lower Layer Super Output Areas, 2011, Clipped and Super-Generalised</p>
+<pre class="r"><code># ref https://census.ukdataservice.ac.uk/use-data/guides/boundary-data.aspx
+#create a couple temp files
+temp &lt;- tempfile()
+temp2 &lt;- tempfile()
+#download the zip folder from the internet save to &#39;temp&#39; 
+download.file(&quot;https://borders.ukdataservice.ac.uk/ukborders/easy_download/prebuilt/shape/England_lsoa_2011_sgen_clipped.zip&quot;,temp)
+#unzip the contents in &#39;temp&#39; and save unzipped content in &#39;temp2&#39;
+unzip(zipfile = temp, exdir = temp2)
+#finds the filepath of the shapefile (.shp) file in the temp2 unzip folder
+#the $ at the end of &quot;.shp$&quot; ensures you are not also finding files such as .shp.xml 
+your_SHP_file&lt;-list.files(temp2, pattern = &quot;.shp$&quot;,full.names=TRUE)
+
+#read the shapefile. Alternatively make an assignment, such as f&lt;-sf::read_sf(your_SHP_file)
+lsoa &lt;- st_read(your_SHP_file)</code></pre>
+<pre><code>## Reading layer `england_lsoa_2011_sgen_clipped&#39; from data source `/private/var/folders/fk/75w_dp6n7z53153kffjhzsjr0000gn/T/RtmpMNIqI9/file2409761e78aa/england_lsoa_2011_sgen_clipped.shp&#39; using driver `ESRI Shapefile&#39;
+## Simple feature collection with 32844 features and 2 fields
+## geometry type:  MULTIPOLYGON
+## dimension:      XY
+## bbox:           xmin: 82678 ymin: 5343 xmax: 655604.7 ymax: 657534.1
+## CRS:            27700</code></pre>
+<pre class="r"><code>qtm(lsoa)</code></pre>
+<p><img src="Res_density_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Get data from <a href="https://www.nomisweb.co.uk" class="uri">https://www.nomisweb.co.uk</a></p>
+<p>KS101EW - Usual resident population (<a href="https://www.nomisweb.co.uk/datasets/144_1/about" class="uri">https://www.nomisweb.co.uk/datasets/144_1/about</a>)</p>
+<pre class="r"><code>library(readr)
+
+data &lt;- read_csv(&quot;1400620050.csv&quot;, 
+    skip = 8) # skips the first summary rows in CSV</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   `2011 super output area - lower layer` = col_character(),
+##   mnemonic = col_character(),
+##   `All usual residents` = col_double(),
+##   Males = col_double(),
+##   Females = col_double(),
+##   `Lives in a household` = col_double(),
+##   `Lives in a communal establishment` = col_double(),
+##   `Schoolchild or full-time student aged 4 and over at their non term-time address` = col_double(),
+##   `Area (Hectares)` = col_double(),
+##   `Density (number of persons per hectare)` = col_double()
+## )</code></pre>
+<pre><code>## Warning: 4 parsing failures.
+##   row col   expected    actual             file
+## 34754  -- 10 columns 2 columns &#39;1400620050.csv&#39;
+## 34755  -- 10 columns 2 columns &#39;1400620050.csv&#39;
+## 34756  -- 10 columns 2 columns &#39;1400620050.csv&#39;
+## 34757  -- 10 columns 2 columns &#39;1400620050.csv&#39;</code></pre>
+<pre class="r"><code>head(data)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["2011 super output area - lower layer"],"name":[1],"type":["chr"],"align":["left"]},{"label":["mnemonic"],"name":[2],"type":["chr"],"align":["left"]},{"label":["All usual residents"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Males"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Females"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Lives in a household"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Lives in a communal establishment"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["Schoolchild or full-time student aged 4 and over at their non term-time address"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["Area (Hectares)"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["Density (number of persons per hectare)"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"City of London 001A","2":"E01000001","3":"1465","4":"767","5":"698","6":"1465","7":"0","8":"21","9":"12.98","10":"112.9"},{"1":"City of London 001B","2":"E01000002","3":"1436","4":"767","5":"669","6":"1436","7":"0","8":"22","9":"22.84","10":"62.9"},{"1":"City of London 001C","2":"E01000003","3":"1346","4":"714","5":"632","6":"1250","7":"96","8":"12","9":"5.91","10":"227.7"},{"1":"City of London 001E","2":"E01000005","3":"985","4":"528","5":"457","6":"985","7":"0","8":"5","9":"18.96","10":"52.0"},{"1":"Barking and Dagenham 016A","2":"E01000006","3":"1703","4":"866","5":"837","6":"1699","7":"4","8":"16","9":"14.66","10":"116.2"},{"1":"Barking and Dagenham 015A","2":"E01000007","3":"1391","4":"707","5":"684","6":"1391","7":"0","8":"0","9":"20.00","10":"69.5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>tail(data)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["2011 super output area - lower layer"],"name":[1],"type":["chr"],"align":["left"]},{"label":["mnemonic"],"name":[2],"type":["chr"],"align":["left"]},{"label":["All usual residents"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Males"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Females"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Lives in a household"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Lives in a communal establishment"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["Schoolchild or full-time student aged 4 and over at their non term-time address"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["Area (Hectares)"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["Density (number of persons per hectare)"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Swansea 025G","2":"W01001957","3":"1036","4":"669","5":"367","6":"800","7":"236","8":"11","9":"21.38","10":"48.5"},{"1":"Swansea 025H","2":"W01001958","3":"1282","4":"750","5":"532","6":"1282","7":"0","8":"9","9":"31.22","10":"41.1"},{"1":"NA","2":"In order to protect against disclosure of personal information, records","3":"NA","4":"NA","5":"NA","6":"NA","7":"NA","8":"NA","9":"NA","10":"NA"},{"1":"NA","2":"have been swapped between different geographic areas. Some counts will","3":"NA","4":"NA","5":"NA","6":"NA","7":"NA","8":"NA","9":"NA","10":"NA"},{"1":"NA","2":"be affected, particularly small counts at the lowest geographies","3":"NA","4":"NA","5":"NA","6":"NA","7":"NA","8":"NA","9":"NA","10":"NA"},{"1":"NA","2":"NA","3":"NA","4":"NA","5":"NA","6":"NA","7":"NA","8":"NA","9":"NA","10":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># remove the last 4 rows
+data &lt;- data %&gt;%
+  slice_head(n = nrow(.) - 4)</code></pre>
+<pre class="r"><code>pop &lt;- lsoa %&gt;%
+  merge(., data, by.x=&quot;code&quot;, by.y=&quot;mnemonic&quot;, no.dups = TRUE)</code></pre>
+<pre class="r"><code>glimpse(pop)</code></pre>
+<pre><code>## Rows: 32,844
+## Columns: 12
+## $ code                                                                              &lt;fct&gt; …
+## $ name                                                                              &lt;fct&gt; …
+## $ `2011 super output area - lower layer`                                            &lt;chr&gt; …
+## $ `All usual residents`                                                             &lt;dbl&gt; …
+## $ Males                                                                             &lt;dbl&gt; …
+## $ Females                                                                           &lt;dbl&gt; …
+## $ `Lives in a household`                                                            &lt;dbl&gt; …
+## $ `Lives in a communal establishment`                                               &lt;dbl&gt; …
+## $ `Schoolchild or full-time student aged 4 and over at their non term-time address` &lt;dbl&gt; …
+## $ `Area (Hectares)`                                                                 &lt;dbl&gt; …
+## $ `Density (number of persons per hectare)`                                         &lt;dbl&gt; …
+## $ geometry                                                                          &lt;MULTIPOLYGON [m]&gt; …</code></pre>
+</div>
+<div id="examine-data-distributions-with-histograms" class="section level1">
+<h1><span class="header-section-number">2</span> Examine data distributions with histograms</h1>
+<pre class="r"><code># Rename large column name and gather over columns to create facet
+popdf &lt;- pop %&gt;%
+  st_drop_geometry() %&gt;%
+  rename(`Schoolchild or full-time student`=`Schoolchild or full-time student aged 4 and over at their non term-time address`) %&gt;%
+  select(c(1,5:11)) %&gt;%
+  gather(key, value, -code)</code></pre>
+<pre class="r"><code>popdf %&gt;%
+  ggplot() +
+  geom_histogram(aes(x=value), binwidth = 10) + 
+  facet_wrap(~key, scales = &quot;free&quot;) +
+  theme_tufte() +
+  theme(axis.title = element_blank())</code></pre>
+<p><img src="Res_density_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code># create jenks breaks for Density
+br7_jenks &lt;- getJenksBreaks(pop$`Density (number of persons per hectare)`, 8)</code></pre>
+<pre class="r"><code>br7_jenks</code></pre>
+<pre><code>## [1]   0.0  17.6  39.9  63.7  96.8 144.8 221.4 684.7</code></pre>
+<pre class="r"><code>pop &lt;- pop %&gt;%
+  mutate(jenks = cut(`Density (number of persons per hectare)`, breaks = br7_jenks))</code></pre>
+</div>
+<div id="create-choropleth-maps" class="section level1">
+<h1><span class="header-section-number">3</span> Create choropleth maps</h1>
+<pre class="r"><code>pop %&gt;% 
+  #slice(1:4530) %&gt;%
+  na.omit() %&gt;%
+  ggplot(aes(fill=jenks)) +
+  geom_sf(size=0) +
+  theme_tufte() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_fill_brewer(type = &quot;seq&quot;, palette = &quot;YlOrRd&quot;, name=&quot;Density (Pers/Ha)&quot;) +
+  annotation_scale(location = &quot;br&quot;, style = &quot;ticks&quot;, tick_height = 0, height = unit(0, &quot;mm&quot;), line_width = 0.5, pad_x = unit(7, &quot;mm&quot;), text_cex = 0.7)</code></pre>
+<p><img src="Res_density_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<pre class="r"><code>b1 &lt;- pop %&gt;% 
+  slice(1:4530) %&gt;%
+  st_bbox() %&gt;% # bounding box
+  st_as_sfc() %&gt;% # geometry from bounding box
+  st_centroid() %&gt;%
+  st_buffer(10000) %&gt;% # buffered distance from centroid
+  st_bbox() %&gt;% 
+  st_as_sfc()</code></pre>
+<pre class="r"><code>pop %&gt;% 
+  #slice(1:4530) %&gt;%
+  st_crop(., b1) %&gt;%
+  na.omit() %&gt;%
+  ggplot(aes(fill=jenks)) +
+  geom_sf(size=0) +
+  theme_tufte() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_fill_brewer(type = &quot;seq&quot;, palette = &quot;YlOrRd&quot;, name=&quot;Density (Pers/Ha)&quot;) +
+  annotation_scale(location = &quot;br&quot;, style = &quot;ticks&quot;, tick_height = 0, height = unit(0, &quot;mm&quot;), line_width = 0.5, pad_x = unit(7, &quot;mm&quot;), text_cex = 0.7)</code></pre>
+<pre><code>## Warning: attribute variables are assumed to be spatially constant throughout all
+## geometries</code></pre>
+<p><img src="Res_density_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<pre class="r"><code>b2 &lt;- pop %&gt;% 
+  slice(1:4530) %&gt;%
+  st_bbox() %&gt;% # bounding box
+  st_as_sfc() %&gt;% # geometry from bounding box
+  st_centroid() %&gt;%
+  st_buffer(50000) %&gt;% # buffered distance from centroid
+  st_bbox() %&gt;% 
+  st_as_sfc()</code></pre>
+<pre class="r"><code>pop %&gt;% 
+  #slice(1:4530) %&gt;%
+  st_crop(., b2) %&gt;%
+  na.omit() %&gt;%
+  ggplot(aes(fill=jenks)) +
+  geom_sf(size=0) +
+  theme_tufte() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_fill_brewer(type = &quot;seq&quot;, palette = &quot;YlOrRd&quot;, name=&quot;Density (Pers/Ha)&quot;) +
+  annotation_scale(location = &quot;br&quot;, style = &quot;ticks&quot;, tick_height = 0, height = unit(0, &quot;mm&quot;), line_width = 0.5, pad_x = unit(7, &quot;mm&quot;), text_cex = 0.7)</code></pre>
+<pre><code>## Warning: attribute variables are assumed to be spatially constant throughout all
+## geometries</code></pre>
+<p><img src="Res_density_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre class="r"><code># filter by string
+# create buffer Islington
+bIsl &lt;- pop %&gt;% 
+  filter(str_detect(name, &quot;Islin&quot;)) %&gt;%
+  st_bbox() %&gt;% # bounding box
+  st_as_sfc() %&gt;% # geometry from bounding box
+  st_centroid() %&gt;%
+  st_buffer(5000) %&gt;% # buffered distance from centroid
+  st_bbox() %&gt;% 
+  st_as_sfc()</code></pre>
+<pre class="r"><code># create boundary Islington
+bou_Isl &lt;- pop %&gt;% 
+  filter(str_detect(name, &quot;Islin&quot;)) %&gt;%
+  st_union() </code></pre>
+<pre class="r"><code>pop %&gt;% 
+  #slice(1:4530) %&gt;%
+  st_crop(., bIsl) %&gt;%
+  na.omit() %&gt;%
+  ggplot() +
+  geom_sf(aes(fill=jenks), size=0) +
+  geom_sf(data=bou_Isl, colour=&quot;cyan&quot;, fill=NA) +
+  theme_tufte() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_fill_brewer(type = &quot;seq&quot;, palette = &quot;YlOrRd&quot;, name=&quot;Density (Pers/Ha)&quot;) +
+  annotation_scale(location = &quot;br&quot;, style = &quot;ticks&quot;, tick_height = 0, height = unit(0, &quot;mm&quot;), line_width = 0.5, pad_x = unit(7, &quot;mm&quot;), text_cex = 0.7) +
+  labs(title=&quot;Islington&quot;)</code></pre>
+<pre><code>## Warning: attribute variables are assumed to be spatially constant throughout all
+## geometries</code></pre>
+<p><img src="Res_density_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<pre class="r"><code># filter by string
+# create buffer Derby
+bDer &lt;- pop %&gt;% 
+  filter(str_detect(name, &quot;Derb&quot;)) %&gt;%
+  st_bbox() %&gt;% # bounding box
+  st_as_sfc() %&gt;% # geometry from bounding box
+  st_centroid() %&gt;%
+  st_buffer(60000) %&gt;% # buffered distance from centroid
+  st_bbox() %&gt;% 
+  st_as_sfc()</code></pre>
+<pre class="r"><code># create boundary Derby
+bou_Der &lt;- pop %&gt;% 
+  filter(str_detect(name, &quot;Derb&quot;)) %&gt;%
+  st_union() </code></pre>
+<pre class="r"><code>pop %&gt;% 
+  #slice(1:4530) %&gt;%
+  st_crop(., bDer) %&gt;%
+  na.omit() %&gt;%
+  ggplot() +
+  geom_sf(aes(fill=jenks), size=0) +
+  geom_sf(data=bou_Der, colour=&quot;cyan&quot;, fill=NA) +
+  theme_tufte() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_fill_brewer(type = &quot;seq&quot;, palette = &quot;YlOrRd&quot;, name=&quot;Density (Pers/Ha)&quot;) +
+  annotation_scale(location = &quot;br&quot;, style = &quot;ticks&quot;, tick_height = 0, height = unit(0, &quot;mm&quot;), line_width = 0.5, pad_x = unit(7, &quot;mm&quot;), text_cex = 0.7) +
+  labs(title=&quot;Derby&quot;)</code></pre>
+<pre><code>## Warning: attribute variables are assumed to be spatially constant throughout all
+## geometries</code></pre>
+<p><img src="Res_density_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
