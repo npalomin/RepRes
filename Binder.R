@@ -4,11 +4,10 @@ library(remotes)
 #remotes::install_github("karthik/holepunch")
 library(holepunch)
 
+write_compendium_description(package = "ResDens", 
+                             description = "Residential Density")
 
-write_compendium_description(package = "Test_binder", 
-                             description = "Test binder")
-
-write_dockerfile(maintainer = "Nicolas") 
+write_dockerfile(maintainer = "np") 
 
 generate_badge()
 
