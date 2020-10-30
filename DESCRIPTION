@@ -1,0 +1,32 @@
+Type: Compendium
+Package: Test_binder
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.1
+Authors@R: 
+    person(given = "First",
+           family = "Last",
+           role = c("aut", "cre"),
+           email = "first.last@example.com")
+Description: Test binder
+License: What license it uses
+Depends: 
+    BAMMtools,
+    ggplot2,
+    ggspatial,
+    ggthemes,
+    holepunch,
+    mapview,
+    readr,
+    remotes,
+    rgdal,
+    rmarkdown,
+    sf,
+    sp,
+    tidyverse,
+    tmap
+Remotes: 
+    karthik/holepunch,
+    r-spatial/mapview,
+    tidyverse/ggplot2
+Encoding: UTF-8
+LazyData: true
