@@ -4,8 +4,8 @@ library(remotes)
 #remotes::install_github("karthik/holepunch")
 library(holepunch)
 
-write_compendium_description(package = "ResDens", 
-                             description = "Residential Density")
+write_compendium_description(package = "RD", 
+                             description = "Res Density")
 
 write_dockerfile(maintainer = "np") 
 
