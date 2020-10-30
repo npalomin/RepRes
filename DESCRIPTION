@@ -1,5 +1,5 @@
 Type: Compendium
-Package: RD
+Package: Your compendium name
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.1
 Authors@R: 
@@ -7,7 +7,7 @@ Authors@R:
            family = "Last",
            role = c("aut", "cre"),
            email = "first.last@example.com")
-Description: Res Density
+Description: Your compendium description
 License: What license it uses
 Depends: 
     BAMMtools,
